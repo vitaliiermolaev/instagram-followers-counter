@@ -4,6 +4,7 @@ A BUSY Bar app that shows the follower count of a public Instagram profile.
 
 - Front display: the Instagram logo, the username in caps and the follower count, rounded the way Instagram shows it (`686M`, `19.8K`, `5,017`). A long username scrolls.
 - Hearts float up in the bottom-right corner next to the count.
+- The background, the icon and the hearts follow the Figma design (`src/images/bg.png`, `tools/hearts.py`).
 - Back display: mirrors the front one.
 - The count updates every 15 minutes. If an update fails, the last count stays on screen with a red cross on the logo, and the app tries again in 5 minutes.
 - Back closes the app.
@@ -32,7 +33,7 @@ Instagram returns the same empty shell for a profile that doesn't exist. The app
 
 ```sh
 python3 tools/hearts.py build/
-python3 <firmware>/scripts/seq2anim.py -o src/animations/hearts.anim build/hearts_13x9.zip
+python3 <firmware>/scripts/seq2anim.py -o src/animations/hearts.anim build/hearts_17x16.zip
 ```
 
 ## Build and install

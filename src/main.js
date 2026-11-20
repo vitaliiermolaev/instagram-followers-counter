@@ -18,7 +18,7 @@ const USER_AGENT = "BUSY-Bar-Instagram-Followers-Counter/1.0";
 const TAIL_CHARS = 1000;
 const SCROLL_PX_PER_MIN = 900;
 
-const PINK = "#FF5FA2FF";
+const PINK = "#F280D7FF"; // middle of the label gradient in the design
 const WHITE = "#FFFFFFFF";
 const GRAY = "#9AA0A6FF";
 
@@ -28,19 +28,11 @@ const TEXT_WIDTH = 53;
 const COUNT_PATTERN = /content="([0-9][0-9.,]*[KMB]?) Followers?, [^"]{0,300}"/;
 const USER_PATTERN = /\((?:@|&#0*64;|&#x0*40;)([A-Za-z0-9._]{1,30})\)/i;
 
-const LOGO = {
-  id: "logo",
-  type: "xpmbitmap",
-  x: 1,
-  y: 1,
-  data:
-    "! XPM2\n14 14 8 1\n. c none\na c #6559CA\nb c #9543A9\nc c #C23387\nd c #E33F5F\ne c #F46D3E\nf c #FA9A50\ng c #FEC66D\n" +
-    "..aaaaaabbbb..\n.bbbbbbbbbbbb.\nbbb........bbb\nbb........b.bb\ncc...cccc...cc\ncc..cccccc..cc\ndd..cc..cc..cc\n" +
-    "dd..dd..cc..cc\nee..dddddd..cc\nee...dddd...cc\nfe..........dd\nfff........ddd\n.ffffeeeeeddd.\n..gffffeeeed..",
-};
+// Background with the Instagram icon, from the Figma design.
+const BACKGROUND = { id: "bg", type: "image", path: "images/bg.png", x: 0, y: 0 };
 
 // Hearts floating up in the bottom-right corner, next to the count (tools/hearts.py).
-const HEARTS = { id: "hearts", type: "animation", path: "animations/hearts.anim", loop: true, x: 58, y: 7 };
+const HEARTS = { id: "hearts", type: "animation", path: "animations/hearts.anim", loop: true, x: 54, y: 0 };
 
 // Red cross in the bottom-right corner of the logo: the last update failed.
 const BADGE = {
@@ -113,9 +105,10 @@ async function render() {
   if (key === shownKey) return;
   shownKey = key;
 
-  const elements = [LOGO, top, bottom];
-  if (badge) elements.push(BADGE);
+  const elements = [BACKGROUND];
   if (hasCount && !heartsShown) elements.push(HEARTS); // sent once, so the loop doesn't restart
+  elements.push(top, bottom);
+  if (badge) elements.push(BADGE);
   await draw(elements);
   const gone = [];
   if (!badge && badgeShown) gone.push("badge");
