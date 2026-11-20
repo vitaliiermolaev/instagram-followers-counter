@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "version": 3,
+  "version": 4,
   "fields": {
     "profile": {
       "label": "Instagram profile",
@@ -8,26 +8,6 @@
       "type": "string",
       "default": "https://www.instagram.com/instagram/",
       "max_length": 255
-    },
-    "decoration": {
-      "label": "Decoration",
-      "description": "Animation in the corner and background colour",
-      "type": "enum",
-      "default": "hearts",
-      "options": [
-        {
-          "value": "hearts",
-          "label": "Hearts"
-        },
-        {
-          "value": "robot",
-          "label": "Robot"
-        },
-        {
-          "value": "alien",
-          "label": "Alien"
-        }
-      ]
     }
   }
 }
