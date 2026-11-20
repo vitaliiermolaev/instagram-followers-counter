@@ -32,7 +32,7 @@ const USER_PATTERN = /\((?:@|&#0*64;|&#x0*40;)([A-Za-z0-9._]{1,30})\)/i;
 const DECORATIONS = {
   hearts: { background: "images/bg_hearts.png", animation: "animations/hearts.anim", accent: "#F280D7FF" },
   robot: { background: "images/bg_robot.png", animation: "animations/robot.anim", accent: "#8FD3FFFF" },
-  bug: { background: "images/bg_bug.png", animation: "animations/bug.anim", accent: "#FF9C9CFF" },
+  alien: { background: "images/bg_alien.png", animation: "animations/alien.anim", accent: "#C8A8FFFF" },
 };
 
 // Explicit layers: without z_index the firmware numbers elements by their place in each request,

@@ -3,8 +3,8 @@
 A BUSY Bar app that shows the follower count of a public Instagram profile.
 
 - Front display: the Instagram logo, the username in caps and the follower count, rounded the way Instagram shows it (`686M`, `19.8K`, `5,017`). A long username scrolls.
-- Two figures float up in the bottom-right corner next to the count and pass under the username: hearts, robots or bugs, see Settings.
-- The background, the icon and the hearts follow the Figma design. The robot and the bug are drawn in the same style.
+- Two figures float up in the bottom-right corner next to the count and pass under the username: hearts, robots or aliens, see Settings.
+- The background, the icon and the hearts follow the Figma design. The robot and the alien follow the look and the motion of the Telegram 🤖 and 👾 emoji, drawn as pixel art in the same style.
 - Back display: mirrors the front one.
 - The count updates every 15 minutes. If an update fails, the last count stays on screen with a red cross on the logo, and the app tries again in 5 minutes.
 - Back closes the app.
@@ -21,7 +21,7 @@ Screenshots for the catalog are in `screenshots/` (72×16, captured from the bar
 | --- | --- | --- | --- |
 | Hearts (default) | pink hearts | purple to navy | pink |
 | Robot | blue robots | navy to teal | light blue |
-| Bug | ladybugs | green to olive | light red |
+| Alien | aliens | green to olive | light purple |
 
 Unlike the profile, the decoration can also be changed on the bar itself.
 
@@ -41,16 +41,16 @@ Instagram returns the same empty shell for a profile that doesn't exist. The app
 
 ## Animations
 
-`src/animations/{hearts,robot,bug}.anim` are built from `tools/animations.py` with `scripts/seq2anim.py` from the [BUSY Bar firmware](https://github.com/busy-app/busybar-firmware). Both need Pillow:
+`src/animations/{hearts,robot,alien}.anim` are built from `tools/animations.py` with `scripts/seq2anim.py` from the [BUSY Bar firmware](https://github.com/busy-app/busybar-firmware). Both need Pillow:
 
 ```sh
 python3 tools/animations.py build/
-for name in hearts robot bug; do
+for name in hearts robot alien; do
   python3 <firmware>/scripts/seq2anim.py -o src/animations/$name.anim build/${name}_17x16.zip
 done
 ```
 
-The backgrounds are `src/images/bg_{hearts,robot,bug}.png`: the hearts one is taken from the design, the others are the same picture with a shifted hue outside the Instagram icon.
+The backgrounds are `src/images/bg_{hearts,robot,alien}.png`: the hearts one is taken from the design, the others are the same picture with a shifted hue outside the Instagram icon.
 
 ## Build and install
 

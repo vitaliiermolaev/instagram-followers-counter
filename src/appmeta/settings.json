@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "version": 2,
+  "version": 3,
   "fields": {
     "profile": {
       "label": "Instagram profile",
@@ -24,8 +24,8 @@
           "label": "Robot"
         },
         {
-          "value": "bug",
-          "label": "Bug"
+          "value": "alien",
+          "label": "Alien"
         }
       ]
     }
