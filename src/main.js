@@ -102,7 +102,7 @@ async function render() {
     bottom = text("bottom", 8, "in settings", "small", WHITE);
   } else {
     // Caps read better in the small font at a glance; usernames are case-insensitive anyway.
-    top = text("top", 0, "@" + (user || profile).toUpperCase(), "small", PINK);
+    top = text("top", 0, (user || profile).toUpperCase(), "small", PINK);
     if (count !== "") bottom = text("bottom", 6, count, "bold", WHITE);
     else if (message !== "") bottom = text("bottom", 8, message, "small", GRAY);
     else bottom = text("bottom", 6, "--", "bold", WHITE);

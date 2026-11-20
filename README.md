@@ -2,7 +2,7 @@
 
 A BUSY Bar app that shows the follower count of a public Instagram profile.
 
-- Front display: the Instagram logo, the username and the follower count, rounded the way Instagram shows it (`686M`, `19.8K`, `5,017`). A long username scrolls.
+- Front display: the Instagram logo, the username in caps and the follower count, rounded the way Instagram shows it (`686M`, `19.8K`, `5,017`). A long username scrolls.
 - Hearts float up in the bottom-right corner next to the count.
 - Back display: mirrors the front one.
 - The count updates every 15 minutes. If an update fails, the last count stays on screen with a red cross on the logo, and the app tries again in 5 minutes.
