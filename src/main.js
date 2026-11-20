@@ -18,7 +18,6 @@ const USER_AGENT = "BUSY-Bar-Instagram-Followers-Counter/1.0";
 const TAIL_CHARS = 1000;
 const SCROLL_PX_PER_MIN = 900;
 
-const PINK = "#F280D7FF"; // middle of the label gradient in the design
 const WHITE = "#FFFFFFFF";
 const GRAY = "#9AA0A6FF";
 
@@ -28,11 +27,20 @@ const TEXT_WIDTH = 53;
 const COUNT_PATTERN = /content="([0-9][0-9.,]*[KMB]?) Followers?, [^"]{0,300}"/;
 const USER_PATTERN = /\((?:@|&#0*64;|&#x0*40;)([A-Za-z0-9._]{1,30})\)/i;
 
-// Background with the Instagram icon, from the Figma design.
-const BACKGROUND = { id: "bg", type: "image", path: "images/bg.png", x: 0, y: 0 };
+// The "decoration" setting: a background with the Instagram icon, an animation in the
+// bottom-right corner (tools/animations.py) and the username colour. Hearts follow the Figma design.
+const DECORATIONS = {
+  hearts: { background: "images/bg_hearts.png", animation: "animations/hearts.anim", accent: "#F280D7FF" },
+  robot: { background: "images/bg_robot.png", animation: "animations/robot.anim", accent: "#8FD3FFFF" },
+  bug: { background: "images/bg_bug.png", animation: "animations/bug.anim", accent: "#FF9C9CFF" },
+};
 
-// Hearts floating up in the bottom-right corner, next to the count (tools/hearts.py).
-const HEARTS = { id: "hearts", type: "animation", path: "animations/hearts.anim", loop: true, x: 54, y: 0 };
+// Explicit layers: without z_index the firmware numbers elements by their place in each request,
+// and the animation, sent once, would end up level with the text and could cover it.
+const Z_BACKGROUND = 0;
+const Z_ANIMATION = 10;
+const Z_TEXT = 20;
+const Z_BADGE = 30;
 
 // Red cross in the bottom-right corner of the logo: the last update failed.
 const BADGE = {
@@ -40,6 +48,7 @@ const BADGE = {
   type: "xpmbitmap",
   x: 11,
   y: 11,
+  z_index: Z_BADGE,
   data: "! XPM2\n5 5 2 1\nk c #000000\nr c #FF3B30\nkkkkk\nkrkrk\nkkrkk\nkrkrk\nkkkkk",
 };
 
@@ -54,7 +63,8 @@ let refreshTimer = null;
 let settingsTimer = null;
 let shownKey = "";
 let badgeShown = false;
-let heartsShown = false;
+let decoration = "hearts";
+let animationShown = ""; // path of the animation on screen
 
 function draw(elements) {
   return fetch(DRAW, {
@@ -74,6 +84,7 @@ function text(id, y, value, font, color) {
   return {
     id: id,
     type: "text",
+    z_index: Z_TEXT,
     x: TEXT_X,
     y: y,
     text: value,
@@ -87,35 +98,40 @@ function text(id, y, value, font, color) {
 }
 
 async function render() {
+  const look = DECORATIONS[decoration];
   let top;
   let bottom;
   if (profile === "") {
-    top = text("top", 0, "Add profile", "small", PINK);
+    top = text("top", 0, "Add profile", "small", look.accent);
     bottom = text("bottom", 8, "in settings", "small", WHITE);
   } else {
     // Caps read better in the small font at a glance; usernames are case-insensitive anyway.
-    top = text("top", 0, (user || profile).toUpperCase(), "small", PINK);
+    top = text("top", 0, (user || profile).toUpperCase(), "small", look.accent);
     if (count !== "") bottom = text("bottom", 6, count, "bold", WHITE);
     else if (message !== "") bottom = text("bottom", 8, message, "small", GRAY);
     else bottom = text("bottom", 6, "--", "bold", WHITE);
   }
   const hasCount = profile !== "" && count !== "";
   const badge = hasCount && failed;
-  const key = JSON.stringify([top.text, top.font, bottom.text, bottom.font, badge]);
-  if (key === shownKey) return;
+  const animation = hasCount ? look.animation : "";
+  const key = JSON.stringify([top.text, top.color, bottom.text, bottom.font, badge, look.background]);
+  if (key === shownKey && animation === animationShown) return;
   shownKey = key;
 
-  const elements = [BACKGROUND];
-  if (hasCount && !heartsShown) elements.push(HEARTS); // sent once, so the loop doesn't restart
+  const elements = [{ id: "bg", type: "image", path: look.background, x: 0, y: 0, z_index: Z_BACKGROUND }];
+  if (animation !== "" && animation !== animationShown) {
+    // Sent only when it changes, so the loop doesn't restart on every redraw.
+    elements.push({ id: "deco", type: "animation", path: animation, loop: true, x: 54, y: 0, z_index: Z_ANIMATION });
+  }
   elements.push(top, bottom);
   if (badge) elements.push(BADGE);
   await draw(elements);
   const gone = [];
   if (!badge && badgeShown) gone.push("badge");
-  if (!hasCount && heartsShown) gone.push("hearts");
+  if (animation === "" && animationShown !== "") gone.push("deco");
   if (gone.length > 0) await remove(gone);
   badgeShown = badge;
-  heartsShown = hasCount;
+  animationShown = animation;
 }
 
 // "https://www.instagram.com/nasa/?hl=en", "instagram.com/nasa", "@nasa", "nasa" -> "nasa"
@@ -127,11 +143,14 @@ function parseProfile(value) {
   return /^[a-z0-9._]{1,30}$/.test(name) ? name : "";
 }
 
-async function readProfile() {
+async function readSettings() {
   const response = await fetch(SETTINGS);
   if (response.status !== 200) throw new Error("settings " + response.status);
-  const doc = JSON.parse(await response.text());
-  return parseProfile(doc.values && doc.values.profile);
+  const values = JSON.parse(await response.text()).values || {};
+  return {
+    profile: parseProfile(values.profile),
+    decoration: DECORATIONS[values.decoration] ? values.decoration : "hearts",
+  };
 }
 
 function bytesToText(bytes) {
@@ -252,9 +271,11 @@ async function refresh() {
 async function checkSettings() {
   settingsTimer = null;
   try {
-    const next = await readProfile();
-    if (next !== profile) {
-      profile = next;
+    const next = await readSettings();
+    const restyled = next.decoration !== decoration;
+    decoration = next.decoration;
+    if (next.profile !== profile) {
+      profile = next.profile;
       user = "";
       count = "";
       message = "";
@@ -267,6 +288,8 @@ async function checkSettings() {
         clearTimeout(refreshTimer);
         refreshTimer = null;
       }
+    } else if (restyled) {
+      await render();
     }
   } catch (error) {
     console.log("settings read failed:", error);
