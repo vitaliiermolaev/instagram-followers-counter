@@ -9,6 +9,8 @@ A BUSY Bar app that shows the follower count of a public Instagram profile.
 - The count updates every 15 minutes. If an update fails, the last count stays on screen with a red cross on the logo, and the app tries again in 5 minutes.
 - Back closes the app.
 
+Screenshots for the catalog are in `screenshots/` (72×16, captured from the bar).
+
 ## Settings
 
 **Instagram profile**: a profile link or a username, for example `https://www.instagram.com/instagram/`, `instagram.com/instagram` or `@instagram`. Edit it in the BUSY app or in the bar's web interface. The bar picks up a new value within 10 seconds.

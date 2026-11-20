@@ -1,8 +1,9 @@
-"""Frames for src/animations/hearts.anim: two hearts floating up in the bottom-right corner.
+"""Frames for src/animations/hearts.anim: two hearts in the bottom-right corner.
 
-The sprites and the background (src/images/bg.png) come from the Figma design. The hearts pass
-through their places in the design (big one at x 62, y 7; small one at x 55, y 11) and fade into
-the background before they reach the username line.
+The sprites and the background (src/images/bg.png) come from the Figma design. The hearts rise
+from below the display to their places in the design (big one at x 62, y 7; small one at x 55,
+y 11), stay there, fade into the background and come again. They never go above row 7, so they
+don't touch the username (rows 2-6), which may scroll across the whole width.
 
 Builds hearts_17x16.zip (PNG frames + meta.json) for scripts/seq2anim.py from the BUSY Bar firmware:
 
@@ -24,7 +25,11 @@ ROOT = Path(__file__).resolve().parent.parent
 X0, Y0 = 54, 0  # where main.js places the animation on the front display
 W, H = 17, 16
 FPS = 6
-LOOP = 24  # 4 s: a pair of hearts, then a short pause
+RISE = 9  # frames for the big heart to rise from below the display to y 7
+HOLD = 12  # 2 s in place
+FADE = (0.75, 0.5, 0.25)  # fade out in place
+PAUSE = 5
+LOOP = RISE + HOLD + len(FADE) + 1 + PAUSE  # 5 s
 
 _ = None
 BIG = [
@@ -42,23 +47,31 @@ SMALL = [
     [_, "9F2584", "FD70C6", "C03296", _],
     [_, _, "802B7A", _, _],
 ]
-HEARTS = [  # (sprite, x on the display, delay in frames)
-    (BIG, 62, 0),
-    (SMALL, 55, 4),  # 4 frames behind: when the big heart is at y 7, the small one is at y 11
+HEARTS = [  # (sprite, x and y in the design)
+    (BIG, 62, 7),
+    (SMALL, 55, 11),
 ]
 
 
-def fade(top):
-    """1 below the username line, then down to 0 over four rows."""
-    return {5: 0.8, 4: 0.6, 3: 0.4, 2: 0.2}.get(top, 1.0 if top >= 6 else 0.0)
+def place(index, rest):
+    """Top row and brightness of a heart at this frame."""
+    if index < RISE:
+        # 1 px per frame; a heart with a shorter way starts later, so both arrive together
+        start = RISE - (16 - rest)
+        return min(16, 16 - (index + 1 - start)), 1.0
+    index -= RISE
+    if index < HOLD:
+        return rest, 1.0
+    index -= HOLD
+    if index < len(FADE):
+        return rest, FADE[index]
+    return rest, 0.0
 
 
 def frame(index, background):
     image = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    for sprite, left, delay in HEARTS:
-        age = (index - delay) % LOOP
-        top = 16 - age  # starts just below the display, rises 1 px per frame
-        k = fade(top)
+    for sprite, left, rest in HEARTS:
+        top, k = place(index, rest)
         if k == 0:
             continue
         for dy, row in enumerate(sprite):
