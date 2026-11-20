@@ -1,0 +1,10 @@
+{
+  "format_version": 1,
+  "id": "io.github.vitaliiermolaev.insta",
+  "name": "Instagram Followers Counter",
+  "version": "1.0.0",
+  "api_version": "27.14.0",
+  "author": "Vitalii Ermolaev",
+  "description": "Follower count of any public Instagram profile, next to its username.",
+  "heap_size_kib": 256
+}

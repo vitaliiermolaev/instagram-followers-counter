@@ -1,0 +1,15 @@
+{
+  "name": "instagram-followers-counter",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "busy-cli build",
+    "app:install": "busy-cli app install",
+    "app:run": "busy-cli app run",
+    "app:stop": "busy-cli app stop"
+  },
+  "devDependencies": {
+    "@busy-app/cli": "0.6.0"
+  }
+}
